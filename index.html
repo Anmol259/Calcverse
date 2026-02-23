@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcVerse 3D - Premium Calculator Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a1a;
+            --bg-mid: #1a1a3a;
+            --bg-light: #0f0f2f;
+            --accent-cyan: #00f5ff;
+            --accent-pink: #ff006e;
+            --accent-gold: #ffd700;
+            --accent-purple: #8b5cf6;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-mid) 50%, var(--bg-light) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-cyan);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-pink);
+            top: 50%;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: var(--accent-purple);
+            bottom: -100px;
+            left: 30%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(40px, 40px) scale(1.05); }
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 60px rgba(0, 245, 255, 0.5);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 20px rgba(0, 245, 255, 0.5)); }
+            to { filter: drop-shadow(0 0 40px rgba(255, 0, 110, 0.5)); }
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Calculator Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            perspective: 1000px;
+            padding: 20px 0;
+        }
+
+        /* 3D Card Styles */
+        .calc-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px 24px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transform: rotateX(5deg) rotateY(-5deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calc-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .calc-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .calc-card:hover {
+            transform: rotateX(0deg) rotateY(0deg) scale(1.05);
+            box-shadow: 0 20px 60px rgba(0, 245, 255, 0.2), 
+                        0 0 40px rgba(255, 0, 110, 0.1);
+            border-color: rgba(0, 245, 255, 0.3);
+        }
+
+        .calc-card:hover::after {
+            opacity: 1;
+        }
+
+        .calc-card:nth-child(1) { animation: cardEntrance 0.6s ease-out 0.1s both; }
+        .calc-card:nth-child(2) { animation: cardEntrance 0.6s ease-out 0.2s both; }
+        .calc-card:nth-child(3) { animation: cardEntrance 0.6s ease-out 0.3s both; }
+        .calc-card:nth-child(4) { animation: cardEntrance 0.6s ease-out 0.4s both; }
+        .calc-card:nth-child(5) { animation: cardEntrance 0.6s ease-out 0.5s both; }
+        .calc-card:nth-child(6) { animation: cardEntrance 0.6s ease-out 0.6s both; }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateX(-20deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(5deg) rotateY(-5deg);
+            }
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .card-glow {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            top: -20px;
+            right: -20px;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .calc-card:nth-child(1) .card-glow { background: var(--accent-cyan); }
+        .calc-card:nth-child(2) .card-glow { background: var(--accent-pink); }
+        .calc-card:nth-child(3) .card-glow { background: var(--accent-gold); }
+        .calc-card:nth-child(4) .card-glow { background: var(--accent-purple); }
+        .calc-card:nth-child(5) .card-glow { background: #10b981; }
+        .calc-card:nth-child(6) .card-glow { background: #f97316; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: linear-gradient(145deg, rgba(26, 26, 58, 0.95), rgba(15, 15, 47, 0.98));
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.8) rotateX(10deg);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) rotateX(0deg);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-pink);
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.5;
+        }
+
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 18px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn-calculate {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-calculate::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-pink), var(--accent-cyan));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.4);
+        }
+
+        .btn-calculate:hover::before {
+            opacity: 1;
+        }
+
+        .btn-calculate span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Results */
+        .result-box {
+            margin-top: 24px;
+            padding: 24px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            display: none;
+        }
+
+        .result-box.active {
+            display: block;
+            animation: resultReveal 0.5s ease-out;
+        }
+
+        @keyframes resultReveal {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+
+        .result-value.warning { color: var(--accent-gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+        .result-value.danger { color: var(--accent-pink); text-shadow: 0 0 20px rgba(255, 0, 110, 0.5); }
+        .result-value.success { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+
+        .result-details {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .result-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .result-detail-item span:first-child {
+            color: var(--text-secondary);
+        }
+
+        .result-detail-item span:last-child {
+            font-family: 'Space Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        /* Mode Tabs */
+        .mode-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 10px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .mode-tab.active {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            border-color: transparent;
+            color: white;
+            font-weight: 600;
+        }
+
+        .mode-tab:hover:not(.active) {
+            border-color: var(--accent-cyan);
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .modal {
+                padding: 30px 20px;
+                border-radius: 24px 24px 0 0;
+                position: fixed;
+                bottom: 0;
+                max-height: 85vh;
+                transform: translateY(100%);
+            }
+
+            .modal-overlay.active .modal {
+                transform: translateY(0);
+            }
+
+            .modal-overlay {
+                align-items: flex-end;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calc-card {
+                transform: none;
+            }
+
+            .calc-card:hover {
+                transform: scale(1.02);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-cyan);
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <header>
+        <h1>CalcVerse 3D</h1>
+        <p class="subtitle">Premium Calculator Hub</p>
+    </header>
+
+    <main class="container">
+        <div class="cards-grid">
+            <!-- Age Calculator -->
+            <div class="calc-card" data-calc="age">
+                <div class="card-glow"></div>
+                <span class="card-icon">🎂</span>
+                <h3 class="card-title">Age Calculator</h3>
+                <p class="card-desc">Calculate your exact age in years, months, days and more</p>
+            </div>
+
+            <!-- BMI Calculator -->
+            <div class="calc-card" data-calc="bmi">
+                <div class="card-glow"></div>
+                <span class="card-icon">⚖️</span>
+                <h3 class="card-title">BMI Calculator</h3>
+                <p class="card-desc">Check your Body Mass Index and health category</p>
+            </div>
+
+            <!-- Percentage Calculator -->
+            <div class="calc-card" data-calc="percentage">
+                <div class="card-glow"></div>
+                <span class="card-icon">📊</span>
+                <h3 class="card-title">Percentage</h3>
+                <p class="card-desc">Calculate percentages, changes, and proportions instantly</p>
+            </div>
+
+            <!-- Interest Calculator -->
+            <div class="calc-card" data-calc="interest">
+                <div class="card-glow"></div>
+                <span class="card-icon">💰</span>
+                <h3 class="card-title">Interest</h3>
+                <p class="card-desc">Simple and compound interest calculations</p>
+            </div>
+
+            <!-- Tip Calculator -->
+            <div class="calc-card" data-calc="tip">
+                <div class="card-glow"></div>
+                <span class="card-icon">🍽️</span>
+                <h3 class="card-title">Tip Calculator</h3>
+                <p class="card-desc">Split bills and calculate tips per person</p>
+            </div>
+
+            <!-- Salary Converter -->
+            <div class="calc-card" data-calc="salary">
+                <div class="card-glow"></div>
+                <span class="card-icon">💼</span>
+                <h3 class="card-title">Salary Converter</h3>
+                <p class="card-desc">Convert hourly, daily, weekly, monthly, yearly rates</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>✨ Crafted with precision by <a href="#">CalcVerse</a></p>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <button class="modal-close" id="modalClose">✕</button>
+            
+            <!-- Age Calculator Modal -->
+            <div class="calc-modal" id="ageModal" style="display: none;">
+                <h2 class="modal-title">🎂 Age Calculator</h2>
+                <p class="modal-subtitle">Find out your exact age</p>
+                
+                <div class="form-group">
+                    <label>Your Birthdate</label>
+                    <input type="date" class="form-input" id="birthdate">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateAge()"><span>Calculate Age</span></button>
+                
+                <div class="result-box" id="ageResult">
+                    <div class="result-label">Your Age</div>
+                    <div class="result-value" id="ageValue">0 years</div>
+                    <div class="result-details">
+                        <div class="result-detail-item">
+                            <span>Years</span>
+                            <span id="ageYears">0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Months</span>
+                            <span id="ageMonths">0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Days</span>
+                            <span id="ageDays">0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Total Days</span>
+                            <span id="totalDays">0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Next Birthday</span>
+                            <span id="nextBirthday">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BMI Calculator Modal -->
+            <div class="calc-modal" id="bmiModal" style="display: none;">
+                <h2 class="modal-title">⚖️ BMI Calculator</h2>
+                <p class="modal-subtitle">Check your Body Mass Index</p>
+                
+                <div class="form-group">
+                    <label>Height</label>
+                    <div class="input-row">
+                        <input type="number" class="form-input" id="bmiHeight" placeholder="Height">
+                        <select class="form-input" id="bmiHeightUnit">
+                            <option value="cm">Centimeters</option>
+                            <option value="ft">Feet</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Weight</label>
+                    <div class="input-row">
+                        <input type="number" class="form-input" id="bmiWeight" placeholder="Weight">
+                        <select class="form-input" id="bmiWeightUnit">
+                            <option value="kg">Kilograms</option>
+                            <option value="lbs">Pounds</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateBMI()"><span>Calculate BMI</span></button>
+                
+                <div class="result-box" id="bmiResult">
+                    <div class="result-label">Your BMI</div>
+                    <div class="result-value" id="bmiValue">0</div>
+                    <div class="result-details">
+                        <div class="result-detail-item">
+                            <span>Category</span>
+                            <span id="bmiCategory">-</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Healthy Range</span>
+                            <span>18.5 - 24.9</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Percentage Calculator Modal -->
+            <div class="calc-modal" id="percentageModal" style="display: none;">
+                <h2 class="modal-title">📊 Percentage Calculator</h2>
+                <p class="modal-subtitle">Calculate percentages easily</p>
+                
+                <div class="mode-tabs">
+                    <div class="mode-tab active" data-mode="percentOf" onclick="setPercentageMode('percentOf')">X% of Y</div>
+                    <div class="mode-tab" data-mode="whatPercent" onclick="setPercentageMode('whatPercent')">X is what %</div>
+                    <div class="mode-tab" data-mode="change" onclick="setPercentageMode('change')">% Change</div>
+                </div>
+                
+                <div class="form-group">
+                    <label id="percentLabel1">Percentage (%)</label>
+                    <input type="number" class="form-input" id="percentInput1" placeholder="Enter value">
+                </div>
+                
+                <div class="form-group" id="percentGroup2">
+                    <label id="percentLabel2">Total Value</label>
+                    <input type="number" class="form-input" id="percentInput2" placeholder="Enter value">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculatePercentage()"><span>Calculate</span></button>
+                
+                <div class="result-box" id="percentResult">
+                    <div class="result-label">Result</div>
+                    <div class="result-value" id="percentValue">0</div>
+                </div>
+            </div>
+
+            <!-- Interest Calculator Modal -->
+            <div class="calc-modal" id="interestModal" style="display: none;">
+                <h2 class="modal-title">💰 Interest Calculator</h2>
+                <p class="modal-subtitle">Calculate interest earnings</p>
+                
+                <div class="mode-tabs">
+                    <div class="mode-tab active" data-mode="simple" onclick="setInterestMode('simple')">Simple</div>
+                    <div class="mode-tab" data-mode="compound" onclick="setInterestMode('compound')">Compound</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Principal Amount ($)</label>
+                    <input type="number" class="form-input" id="principal" placeholder="Enter principal">
+                </div>
+                
+                <div class="form-group">
+                    <label>Annual Interest Rate (%)</label>
+                    <input type="number" class="form-input" id="rate" placeholder="Enter rate" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>Time Period</label>
+                    <div class="input-row">
+                        <input type="number" class="form-input" id="time" placeholder="Time">
+                        <select class="form-input" id="timeUnit">
+                            <option value="years">Years</option>
+                            <option value="months">Months</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="compoundFreqGroup" style="display: none;">
+                    <label>Compounding Frequency</label>
+                    <select class="form-input" id="compoundFreq">
+                        <option value="1">Annually</option>
+                        <option value="2">Semi-annually</option>
+                        <option value="4">Quarterly</option>
+                        <option value="12">Monthly</option>
+                    </select>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateInterest()"><span>Calculate Interest</span></button>
+                
+                <div class="result-box" id="interestResult">
+                    <div class="result-label">Total Amount</div>
+                    <div class="result-value" id="totalAmount">$0</div>
+                    <div class="result-details">
+                        <div class="result-detail-item">
+                            <span>Interest Earned</span>
+                            <span id="interestEarned">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tip Calculator Modal -->
+            <div class="calc-modal" id="tipModal" style="display: none;">
+                <h2 class="modal-title">🍽️ Tip Calculator</h2>
+                <p class="modal-subtitle">Split bills and calculate tips</p>
+                
+                <div class="form-group">
+                    <label>Bill Amount ($)</label>
+                    <input type="number" class="form-input" id="billAmount" placeholder="Enter bill amount">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tip Percentage (%)</label>
+                    <input type="number" class="form-input" id="tipPercent" placeholder="15" value="15">
+                </div>
+                
+                <div class="form-group">
+                    <label>Number of People</label>
+                    <input type="number" class="form-input" id="numPeople" placeholder="1" value="1">
+                </div>
+                
+                <button class="btn-calculate" onclick="calculateTip()"><span>Calculate Tip</span></button>
+                
+                <div class="result-box" id="tipResult">
+                    <div class="result-label">Total Per Person</div>
+                    <div class="result-value" id="totalPerPerson">$0</div>
+                    <div class="result-details">
+                        <div class="result-detail-item">
+                            <span>Tip Per Person</span>
+                            <span id="tipPerPerson">$0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Total Tip</span>
+                            <span id="totalTip">$0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Total Bill</span>
+                            <span id="totalBill">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salary Converter Modal -->
+            <div class="calc-modal" id="salaryModal" style="display: none;">
+                <h2 class="modal-title">💼 Salary Converter</h2>
+                <p class="modal-subtitle">Convert between salary periods</p>
+                
+                <div class="form-group">
+                    <label>Enter Salary</label>
+                    <input type="number" class="form-input" id="salaryInput" placeholder="Enter amount">
+                </div>
+                
+                <div class="form-group">
+                    <label>Convert From</label>
+                    <select class="form-input" id="salaryFrom">
+                        <option value="hourly">Hourly</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly" selected>Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+                
+                <button class="btn-calculate" onclick="convertSalary()"><span>Convert Salary</span></button>
+                
+                <div class="result-box" id="salaryResult">
+                    <div class="result-label">Converted Salaries</div>
+                    <div class="result-details">
+                        <div class="result-detail-item">
+                            <span>Hourly</span>
+                            <span id="salaryHourly">$0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Daily (5 days)</span>
+                            <span id="salaryDaily">$0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Weekly</span>
+                            <span id="salaryWeekly">$0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Monthly</span>
+                            <span id="salaryMonthly">$0</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span>Yearly</span>
+                            <span id="salaryYearly">$0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentCalc = '';
+        let percentageMode = 'percentOf';
+        let interestMode = 'simple';
+
+        // Card click handlers
+        document.querySelectorAll('.calc-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const calcType = card.dataset.calc;
+                openModal(calcType);
+            });
+        });
+
+        // Modal controls
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modalOverlay')) {
+                closeModal();
+            }
+        });
+
+        function openModal(calcType) {
+            currentCalc = calcType;
+            document.getElementById('modalOverlay').classList.add('active');
+            
+            // Hide all modals
+            document.querySelectorAll('.calc-modal').forEach(m => m.style.display = 'none');
+            
+            // Show selected modal
+            const modal = document.getElementById(calcType + 'Modal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+            
+            // Reset results
+            document.querySelectorAll('.result-box').forEach(r => r.classList.remove('active'));
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // Age Calculator
+        function calculateAge() {
+            const birthdate = document.getElementById('birthdate').value;
+            if (!birthdate) {
+                alert('Please enter your birthdate');
+                return;
+            }
+
+            const birth = new Date(birthdate);
+            const today = new Date();
+            
+            if (birth > today) {
+                alert('Birthdate cannot be in the future');
+                return;
+            }
+
+            let years = today.getFullYear() - birth.getFullYear();
+            let months = today.getMonth() - birth.getMonth();
+            let days = today.getDate() - birth.getDate();
+
+            if (days < 0) {
+                months--;
+                days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            }
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            const totalDays = Math.floor((today - birth) / (1000 * 60 * 60 * 24));
+            
+            // Next birthday
+            let nextBirthday = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(today.getFullYear() + 1);
+            }
+            const daysToNext = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+
+            document.getElementById('ageValue').textContent = `${years} years`;
+            document.getElementById('ageYears').textContent = years;
+            document.getElementById('ageMonths').textContent = months;
+            document.getElementById('ageDays').textContent = days;
+            document.getElementById('totalDays').textContent = totalDays.toLocaleString();
+            document.getElementById('nextBirthday').textContent = `${daysToNext} days`;
+            
+            document.getElementById('ageResult').classList.add('active');
+        }
+
+        // BMI Calculator
+        function calculateBMI() {
+            let height = parseFloat(document.getElementById('bmiHeight').value);
+            let weight = parseFloat(document.getElementById('bmiWeight').value);
+            
+            if (!height || !weight) {
+                alert('Please enter both height and weight');
+                return;
+            }
+
+            const heightUnit = document.getElementById('bmiHeightUnit').value;
+            const weightUnit = document.getElementById('bmiWeightUnit').value;
+
+            // Convert to metric
+            if (heightUnit === 'ft') {
+                height = height * 30.48; // feet to cm
+            }
+            if (weightUnit === 'lbs') {
+                weight = weight * 0.453592; // lbs to kg
+            }
+
+            const heightM = height / 100;
+            const bmi = weight / (heightM * heightM);
+            
+            let category = '';
+            let categoryClass = '';
+            
+            if (bmi < 18.5) {
+                category = 'Underweight';
+                categoryClass = 'warning';
+            } else if (bmi < 25) {
+                category = 'Normal';
+                categoryClass = 'success';
+            } else if (bmi < 30) {
+                category = 'Overweight';
+                categoryClass = 'warning';
+            } else {
+                category = 'Obese';
+                categoryClass = 'danger';
+            }
+
+            const bmiValue = document.getElementById('bmiValue');
+            bmiValue.textContent = bmi.toFixed(1);
+            bmiValue.className = 'result-value ' + categoryClass;
+            document.getElementById('bmiCategory').textContent = category;
+            document.getElementById('bmiCategory').className = categoryClass;
+            
+            document.getElementById('bmiResult').classList.add('active');
+        }
+
+        // Percentage Calculator
+        function setPercentageMode(mode) {
+            percentageMode = mode;
+            document.querySelectorAll('#percentageModal .mode-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.mode === mode);
+            });
+
+            const label1 = document.getElementById('percentLabel1');
+            const label2 = document.getElementById('percentLabel2');
+
+            if (mode === 'percentOf') {
+                label1.textContent = 'Percentage (%)';
+                label2.textContent = 'Total Value';
+            } else if (mode === 'whatPercent') {
+                label1.textContent = 'Part Value';
+                label2.textContent = 'Total Value';
+            } else {
+                label1.textContent = 'Old Value';
+                label2.textContent = 'New Value';
+            }
+
+            document.getElementById('percentInput1').value = '';
+            document.getElementById('percentInput2').value = '';
+            document.getElementById('percentResult').classList.remove('active');
+        }
+
+        function calculatePercentage() {
+            const val1 = parseFloat(document.getElementById('percentInput1').value);
+            const val2 = parseFloat(document.getElementById('percentInput2').value);
+
+            if (isNaN(val1) || isNaN(val2)) {
+                alert('Please enter valid numbers');
+                return;
+            }
+
+            let result = 0;
+
+            if (percentageMode === 'percentOf') {
+                result = (val1 / 100) * val2;
+                document.getElementById('percentValue').textContent = result.toLocaleString();
+            } else if (percentageMode === 'whatPercent') {
+                result = (val1 / val2) * 100;
+                document.getElementById('percentValue').textContent = result.toFixed(2) + '%';
+            } else {
+                result = ((val2 - val1) / val1) * 100;
+                const sign = result >= 0 ? '+' : '';
+                document.getElementById('percentValue').textContent = sign + result.toFixed(2) + '%';
+            }
+
+            document.getElementById('percentResult').classList.add('active');
+        }
+
+        // Interest Calculator
+        function setInterestMode(mode) {
+            interestMode = mode;
+            document.querySelectorAll('#interestModal .mode-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.mode === mode);
+            });
+
+            document.getElementById('compoundFreqGroup').style.display = mode === 'compound' ? 'block' : 'none';
+            document.getElementById('interestResult').classList.remove('active');
+        }
+
+        function calculateInterest() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('rate').value);
+            let time = parseFloat(document.getElementById('time').value);
+            const timeUnit = document.getElementById('timeUnit').value;
+
+            if (isNaN(principal) || isNaN(rate) || isNaN(time)) {
+                alert('Please enter all values');
+                return;
+            }
+
+            if (timeUnit === 'months') {
+                time = time / 12;
+            }
+
+            let interest = 0;
+            let total = 0;
+
+            if (interestMode === 'simple') {
+                interest = principal * (rate / 100) * time;
+                total = principal + interest;
+            } else {
+                const freq = parseInt(document.getElementById('compoundFreq').value);
+                const n = freq * time;
+                const r = rate / 100;
+                total = principal * Math.pow((1 + r / freq), n);
+                interest = total - principal;
+            }
+
+            document.getElementById('totalAmount').textContent = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('interestEarned').textContent = '$' + interest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            document.getElementById('interestResult').classList.add('active');
+        }
+
+        // Tip Calculator
+        function calculateTip() {
+            const bill = parseFloat(document.getElementById('billAmount').value);
+            const tipPercent = parseFloat(document.getElementById('tipPercent').value);
+            const numPeople = parseInt(document.getElementById('numPeople').value);
+
+            if (isNaN(bill) || isNaN(tipPercent) || isNaN(numPeople) || numPeople < 1) {
+                alert('Please enter valid values');
+                return;
+            }
+
+            const totalTip = bill * (tipPercent / 100);
+            const totalBill = bill + totalTip;
+            const tipPerPerson = totalTip / numPeople;
+            const totalPerPerson = totalBill / numPeople;
+
+            document.getElementById('totalPerPerson').textContent = '$' + totalPerPerson.toFixed(2);
+            document.getElementById('tipPerPerson').textContent = '$' + tipPerPerson.toFixed(2);
+            document.getElementById('totalTip').textContent = '$' + totalTip.toFixed(2);
+            document.getElementById('totalBill').textContent = '$' + totalBill.toFixed(2);
+            
+            document.getElementById('tipResult').classList.add('active');
+        }
+
+        // Salary Converter
+        function convertSalary() {
+            const salary = parseFloat(document.getElementById('salaryInput').value);
+            const from = document.getElementById('salaryFrom').value;
+
+            if (isNaN(salary)) {
+                alert('Please enter a salary value');
+                return;
+            }
+
+            // Convert to yearly first
+            let yearly = 0;
+            switch (from) {
+                case 'hourly':
+                    yearly = salary * 40 * 52; // 40 hours/week, 52 weeks
+                    break;
+                case 'daily':
+                    yearly = salary * 5 * 52; // 5 days/week
+                    break;
+                case 'weekly':
+                    yearly = salary * 52;
+                    break;
+                case 'monthly':
+                    yearly = salary * 12;
+                    break;
+                case 'yearly':
+                    yearly = salary;
+                    break;
+            }
+
+            const hourly = yearly / (40 * 52);
+            const daily = yearly / 52;
+            const weekly = yearly / 52;
+            const monthly = yearly / 12;
+
+            document.getElementById('salaryHourly').textContent = '$' + hourly.toFixed(2);
+            document.getElementById('salaryDaily').textContent = '$' + daily.toFixed(2);
+            document.getElementById('salaryWeekly').textContent = '$' + weekly.toFixed(2);
+            document.getElementById('salaryMonthly').textContent = '$' + monthly.toFixed(2);
+            document.getElementById('salaryYearly').textContent = '$' + yearly.toLocaleString();
+            
+            document.getElementById('salaryResult').classList.add('active');
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Set max date for birthdate input
+        document.getElementById('birthdate').max = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>
